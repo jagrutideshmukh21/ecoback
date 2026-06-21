@@ -9,6 +9,7 @@
 require('dotenv').config();
 const path = require('path');
 const fs   = require('fs');
+const { hashPassword } = require('./security');
 
 // ─── Ensure data directory ────────────────────────────────────────────────────
 const dataDir = path.join(__dirname, 'data');
@@ -45,6 +46,7 @@ const nUpsert = async (s, q, data) => {
 const SEED = {
   users: [{
     id: 'usr_default', username: 'EcoWarrior', email: 'warrior@ecotrack.ai',
+    password: hashPassword('password123'),
     xp: 1250, level: 4, streak: 5, lastStreakUpdate: new Date().toISOString(),
     carbonScore: 72, monthlyEmissions: 320, targetEmissions: 250,
     badges: ['Eco Starter', 'Transit Hero', 'Recycling Champion'],
@@ -164,6 +166,14 @@ const dbAdapter = {
       return (await User.findOne({ id })) || (await User.findOne({}));
     }
     return (await nFindOne(nedb.users, { id })) || (await nFind(nedb.users)).shift() || null;
+  },
+
+  async getUserByEmail(email) {
+    if (useMongo()) {
+      const User = mongoose.model('User');
+      return User.findOne({ email });
+    }
+    return (await nFindOne(nedb.users, { email })) || null;
   },
 
   async saveUser(userData) {
