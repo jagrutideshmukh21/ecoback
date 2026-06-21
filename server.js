@@ -1,13 +1,34 @@
 require('dotenv').config();
+
 const express = require('express');
 const cors = require('cors');
 const morgan = require('morgan');
 const db = require('./db');
 
-// Note: models are registered inside db.js when MongoDB is active
-
+// Create Express App
 const app = express();
+
+// Middleware
+app.use(cors());
+app.use(morgan('dev'));
+app.use(express.json());
+
+// Root Route
+app.get("/", (req, res) => {
+  res.send("EcoTrack AI Backend Running 🚀");
+});
+// API Routes
+app.use('/api', require('./routes'));
+
+
+// Start Server
 const PORT = process.env.PORT || 5000;
+
+app.listen(PORT, () => {
+  console.log(`🚀 Server running on port ${PORT}`);
+});
+// your API routes here
+
 
 // Set default JWT Secret fallback
 process.env.JWT_SECRET = process.env.JWT_SECRET || 'ecotrack_ai_super_secret_fallback_key_2026';
